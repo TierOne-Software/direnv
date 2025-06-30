@@ -1,0 +1,110 @@
+# Example direnv configuration file
+# Place this file in your project root directory
+
+# Enable automatic environment loading when entering this directory
+auto_apply = true
+
+# Environment variables
+[environment]
+# Compiler settings
+CC = "gcc-11"
+CXX = "g++-11"
+
+# Add project bin directory to PATH
+PATH = "$PATH:$PROJECT_ROOT/bin"
+
+# Project-specific variables
+PROJECT_NAME = "MyAwesomeProject"
+BUILD_TYPE = "debug"
+DATABASE_URL = "postgresql://localhost:5432/myproject_dev"
+
+# Development tools
+EDITOR = "vim"
+NODE_ENV = "development"
+
+# Shell aliases for common tasks
+[aliases]
+# Build shortcuts
+build = "make build"
+clean = "make clean"
+test = "make test"
+
+# Git shortcuts
+gs = "git status"
+gc = "git commit"
+gp = "git push"
+
+# Project-specific shortcuts
+run = "./bin/myproject"
+deps = "go mod download"
+lint = "golangci-lint run"
+
+# Embedded scripts for complex tasks
+[scripts]
+# Setup development environment
+setup = """
+echo "Setting up development environment..."
+mkdir -p bin tmp logs
+go mod download
+echo "Setup complete!"
+"""
+
+# Build for multiple platforms
+build-all = """
+echo "Building for all platforms..."
+GOOS=linux GOARCH=amd64 go build -o bin/myproject-linux-amd64
+GOOS=darwin GOARCH=amd64 go build -o bin/myproject-darwin-amd64
+GOOS=windows GOARCH=amd64 go build -o bin/myproject-windows-amd64.exe
+echo "Build complete!"
+"""
+
+# Database operations
+db-migrate = """
+echo "Running database migrations..."
+migrate -path ./migrations -database $DATABASE_URL up
+echo "Migrations complete!"
+"""
+
+# Development server with hot reload
+dev = """
+echo "Starting development server..."
+air -c .air.toml
+"""
+
+# Clean and rebuild everything
+rebuild = """
+echo "Cleaning build artifacts..."
+rm -rf bin/ tmp/
+echo "Rebuilding project..."
+go build -o bin/myproject
+echo "Build complete!"
+"""
+
+# Run all checks
+check = """
+echo "Running tests..."
+go test ./...
+echo "Running linter..."
+golangci-lint run
+echo "All checks passed!"
+"""
+
+# Hooks - run automatically at specific times
+[hooks]
+pre_apply = """
+echo "Loading environment for $PROJECT_NAME..."
+"""
+
+post_apply = """
+echo "Environment ready! Available commands:"
+echo "  build    - Build the project"
+echo "  test     - Run tests"
+echo "  deploy   - Deploy to staging"
+echo "Type 'help' for more information"
+"""
+
+on_leave = """
+echo "Leaving $PROJECT_NAME environment"
+echo "Cleaning up temporary files..."
+rm -rf tmp/*.log 2>/dev/null || true
+"""

@@ -1,0 +1,68 @@
+# Linux kernel development environment example
+auto_apply = true
+
+[environment]
+# Cross-compilation toolchain
+ARCH = "arm"
+CROSS_COMPILE = "arm-linux-gnueabihf-"
+
+# Kernel paths
+KERNEL_PATH = "$PROJECT_ROOT/linux"
+KERNEL_VERSION = "6.1"
+
+# Build settings
+KBUILD_OUTPUT = "$PROJECT_ROOT/build"
+INSTALL_MOD_PATH = "$PROJECT_ROOT/modules"
+
+# Development tools
+CC = "${CROSS_COMPILE}gcc"
+LD = "${CROSS_COMPILE}ld"
+AS = "${CROSS_COMPILE}as"
+OBJCOPY = "${CROSS_COMPILE}objcopy"
+
+# Target device
+TARGET_DEVICE = "/dev/sdb"
+TARGET_IP = "192.168.1.100"
+
+[aliases]
+# Kernel build shortcuts
+menuconfig = "make -C $KERNEL_PATH O=$KBUILD_OUTPUT ARCH=$ARCH menuconfig"
+defconfig = "make -C $KERNEL_PATH O=$KBUILD_OUTPUT ARCH=$ARCH defconfig"
+kbuild = "make -C $KERNEL_PATH O=$KBUILD_OUTPUT ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE -j$(nproc)"
+modules = "make -C $KERNEL_PATH O=$KBUILD_OUTPUT ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE modules"
+
+# Device operations
+flash = "direnv run flash_device"
+deploy = "direnv run deploy_kernel"
+
+[scripts]
+build_kernel = """
+echo "Building Linux kernel for ARM..."
+cd $KERNEL_PATH
+make O=$KBUILD_OUTPUT ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE defconfig
+make O=$KBUILD_OUTPUT ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE -j$(nproc)
+echo "Kernel build complete"
+"""
+
+flash_device = """
+if [ -z "$TARGET_DEVICE" ]; then
+    echo "Error: TARGET_DEVICE not set"
+    exit 1
+fi
+echo "Flashing kernel to $TARGET_DEVICE..."
+sudo dd if=$KBUILD_OUTPUT/arch/arm/boot/zImage of=$TARGET_DEVICE bs=1M
+sync
+echo "Flash complete"
+"""
+
+deploy_kernel = """
+if [ -z "$TARGET_IP" ]; then
+    echo "Error: TARGET_IP not set"
+    exit 1
+fi
+echo "Deploying kernel to $TARGET_IP..."
+scp $KBUILD_OUTPUT/arch/arm/boot/zImage root@$TARGET_IP:/boot/
+scp -r $INSTALL_MOD_PATH/lib/modules/* root@$TARGET_IP:/lib/modules/
+ssh root@$TARGET_IP "sync && reboot"
+echo "Deployment complete, target rebooting..."
+"""
