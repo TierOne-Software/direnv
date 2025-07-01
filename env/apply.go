@@ -46,13 +46,24 @@ func expandEnvVar(value string, baseDir string) string {
 	return result
 }
 
-func ExecuteScript(scriptName, scriptContent string, baseDir string) error {
+func ExecuteScript(scriptName, scriptContent string, baseDir string, args ...string) error {
 	shell := os.Getenv("SHELL")
 	if shell == "" {
 		shell = "/bin/sh"
 	}
 
-	cmd := exec.Command(shell, "-c", scriptContent)
+	// Build the script with positional parameters set
+	fullScript := scriptContent
+	if len(args) > 0 {
+		// Prepend set -- to set positional parameters
+		quotedArgs := make([]string, len(args))
+		for i, arg := range args {
+			quotedArgs[i] = shellQuote(arg)
+		}
+		fullScript = fmt.Sprintf("set -- %s\n%s", strings.Join(quotedArgs, " "), scriptContent)
+	}
+
+	cmd := exec.Command(shell, "-c", fullScript)
 	cmd.Dir = baseDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -93,16 +104,12 @@ func ExportForShell(cfg *config.Config, baseDir string, shellType string) string
 	}
 
 	for name, command := range cfg.Aliases {
-		if shellType == "fish" {
-			exports = append(exports, fmt.Sprintf("alias %s=%s", name, shellQuote(command)))
-		} else {
-			exports = append(exports, fmt.Sprintf("alias %s=%s", name, shellQuote(command)))
-		}
+		exports = append(exports, fmt.Sprintf("alias %s=%s", name, shellQuote(command)))
 	}
 
 	for name, script := range cfg.Scripts {
-		// Inject PROJECT_ROOT into the function
-		funcDef := fmt.Sprintf("%s() {\n    local PROJECT_ROOT=%s\n    (\n        cd \"$PROJECT_ROOT\"\n%s\n    )\n}", name, shellQuote(baseDir), indent(script, "        "))
+		// Inject PROJECT_ROOT into the function and pass all arguments
+		funcDef := fmt.Sprintf("%s() {\n    local PROJECT_ROOT=%s\n    (\n        cd \"$PROJECT_ROOT\"\n        set -- \"$@\"\n%s\n    )\n}", name, shellQuote(baseDir), indent(script, "        "))
 		exports = append(exports, funcDef)
 	}
 

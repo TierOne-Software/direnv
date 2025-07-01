@@ -72,7 +72,7 @@ sudo mv direnv /usr/local/bin/
 - `direnv completion` - Generate shell completions
 - `direnv doctor` - Diagnose configuration issues
 - `direnv restore` - Restore the previous environment
-- `direnv run <script>` - Run a script defined in the configuration
+- `direnv run <script> [args...]` - Run a script defined in the configuration with optional arguments
 
 ### Shell Functions
 
@@ -108,7 +108,17 @@ echo "Setting up project..."
 npm install
 """
 
+# Scripts with parameters - access arguments using $1, $2, $@, etc.
+build = "npm run build -- $@"
+test = "pytest $1 ${@:2}"
+deploy = """
+echo "Deploying to $1"
+echo "Additional flags: ${@:2}"
+"""
+
 # After applying, you can just run: setup
+# Or with parameters: build --production
+# Or: test tests/unit -v --coverage
 ```
 
 ### Environment Variable Expansion
@@ -153,6 +163,42 @@ on_leave = """
 echo "Leaving $PROJECT_NAME environment"
 rm -rf tmp/*.log 2>/dev/null || true
 """
+```
+
+### Script Parameters
+
+Scripts support command-line arguments using standard shell positional parameters:
+
+```toml
+[scripts]
+# Use $@ to pass all arguments
+build = "npm run build -- $@"
+
+# Use specific positional parameters
+test = "pytest $1 ${@:2}"  # $1 is first arg, ${@:2} is remaining args
+
+# Multi-line scripts work too
+deploy = """
+if [ -z "$1" ]; then
+    echo "Usage: deploy <environment>"
+    exit 1
+fi
+echo "Deploying to $1 with flags: ${@:2}"
+./deploy.sh "$@"
+"""
+```
+
+Usage examples:
+```bash
+# After direnv apply, use as shell functions:
+build --production --minify
+test tests/unit -v --coverage
+deploy staging --dry-run
+
+# Or use direnv run:
+direnv run build --production
+direnv run test tests/unit -v
+direnv run deploy staging --dry-run
 ```
 
 ### Auto-Apply Control

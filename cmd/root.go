@@ -29,7 +29,7 @@ import (
 
 func Execute() error {
 	if len(os.Args) < 2 {
-		return fmt.Errorf("usage: direnv <command> [args]\n\nCommands:\n  apply     - Apply directory environment\n  diff      - Show what would change\n  info      - Show current status\n  enable    - Enable auto-apply\n  disable   - Disable auto-apply\n  init      - Initialize shell integration\n  completion - Generate shell completion\n  doctor    - Diagnose configuration issues\n  cleanup   - Clean up orphaned state files\n  restore   - Restore previous environment\n  run       - Run a script from the config")
+		return fmt.Errorf("usage: direnv <command> [args]\n\nCommands:\n  apply     - Apply directory environment\n  diff      - Show what would change\n  info      - Show current status\n  enable    - Enable auto-apply\n  disable   - Disable auto-apply\n  init      - Initialize shell integration\n  completion - Generate shell completion\n  doctor    - Diagnose configuration issues\n  cleanup   - Clean up orphaned state files\n  restore   - Restore previous environment\n  run       - Run a script from the config with optional arguments")
 	}
 
 	command := os.Args[1]
@@ -57,9 +57,9 @@ func Execute() error {
 		return restoreCommand()
 	case "run":
 		if len(os.Args) < 3 {
-			return fmt.Errorf("usage: direnv run <script-name>")
+			return fmt.Errorf("usage: direnv run <script-name> [args...]")
 		}
-		return runScriptCommand(os.Args[2])
+		return runScriptCommand(os.Args[2], os.Args[3:])
 	default:
 		return fmt.Errorf("unknown command: %s", command)
 	}
@@ -275,7 +275,7 @@ func cleanupCommand() error {
 	return nil
 }
 
-func runScriptCommand(scriptName string) error {
+func runScriptCommand(scriptName string, args []string) error {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("failed to get current directory: %w", err)
@@ -295,5 +295,5 @@ func runScriptCommand(scriptName string) error {
 	}
 
 	configDir := filepath.Dir(configPath)
-	return env.ExecuteScript(scriptName, script, configDir)
+	return env.ExecuteScript(scriptName, script, configDir, args...)
 }
