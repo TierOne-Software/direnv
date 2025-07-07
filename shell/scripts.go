@@ -91,11 +91,7 @@ _direnv_check
 
 # Load completions if available
 if command -v direnv >/dev/null 2>&1; then
-    # Only eval if we get zsh completion output
-    local completion_output="$(direnv completion 2>/dev/null)"
-    if [[ "$completion_output" =~ "^#compdef" ]]; then
-        eval "$completion_output"
-    fi
+    eval "$(direnv completion bash 2>/dev/null)"
 fi
 `
 
@@ -166,10 +162,11 @@ _direnv_check
 
 # Load completions if available
 if command -v direnv >/dev/null 2>&1; then
-    # Only eval if we get zsh completion output
-    local completion_output="$(direnv completion 2>/dev/null)"
-    if [[ "$completion_output" =~ "^#compdef" ]]; then
-        eval "$completion_output"
-    fi
+    eval "$(direnv completion zsh 2>/dev/null)"
 fi
+
+# Apply cd completions to direnv aliases
+compdef _cd _direnv_cd
+compdef _cd _direnv_pushd
+compdef _cd _direnv_popd
 `
