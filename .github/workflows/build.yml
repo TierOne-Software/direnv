@@ -7,6 +7,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     name: Build
@@ -96,5 +100,5 @@ jobs:
         draft: false
         prerelease: false
         generate_release_notes: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        fail_on_unmatched_files: false
+        token: ${{ secrets.GITHUB_TOKEN }}
