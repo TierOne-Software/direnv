@@ -1,4 +1,4 @@
-module github.com/tierone-software/direnv
+module github.com/TierOne-Software/direnv
 
 go 1.24
 
