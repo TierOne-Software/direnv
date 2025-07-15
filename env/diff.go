@@ -22,7 +22,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/tierone-software/direnv/config"
+	"github.com/TierOne-Software/direnv/config"
 )
 
 type DiffType int

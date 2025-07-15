@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tierone-software/direnv/config"
+	"github.com/TierOne-Software/direnv/config"
 )
 
 func GetCompletionScript(shellType ShellType) string {

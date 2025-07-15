@@ -21,7 +21,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tierone-software/direnv/config"
+	"github.com/TierOne-Software/direnv/config"
 )
 
 func TestGenerateDiff(t *testing.T) {

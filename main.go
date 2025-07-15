@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tierone-software/direnv/cmd"
+	"github.com/TierOne-Software/direnv/cmd"
 )
 
 func main() {

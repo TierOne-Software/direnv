@@ -22,7 +22,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/tierone-software/direnv/config"
+	"github.com/TierOne-Software/direnv/config"
 )
 
 func ApplyConfig(cfg *config.Config, baseDir string) error {

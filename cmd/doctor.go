@@ -23,9 +23,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tierone-software/direnv/config"
-	"github.com/tierone-software/direnv/env"
-	"github.com/tierone-software/direnv/shell"
+	"github.com/TierOne-Software/direnv/config"
+	"github.com/TierOne-Software/direnv/env"
+	"github.com/TierOne-Software/direnv/shell"
 )
 
 type DiagnosticResult struct {
