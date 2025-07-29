@@ -37,7 +37,7 @@ export DIRENV_SHELL=bash
 _direnv_check() {
     # Prevent recursive calls
     [[ "${_DIRENV_IN_PROGRESS:-}" == "1" ]] && return
-    
+
     if [[ "${DIRENV_AUTO_APPLY:-}" =~ ^1$ ]]; then
         if [[ -f ".direnv.toml" ]]; then
             export _DIRENV_IN_PROGRESS=1
@@ -103,7 +103,7 @@ export DIRENV_SHELL=zsh
 _direnv_check() {
     # Prevent recursive calls
     [[ "${_DIRENV_IN_PROGRESS:-}" == "1" ]] && return
-    
+
     if [[ "${DIRENV_AUTO_APPLY:-}" =~ ^1$ ]]; then
         if [[ -f ".direnv.toml" ]]; then
             export _DIRENV_IN_PROGRESS=1
@@ -162,7 +162,7 @@ _direnv_check
 
 # Load completions if available
 if command -v direnv >/dev/null 2>&1; then
-    eval "$(direnv completion zsh 2>/dev/null)"
+    eval "$(direnv hook zsh 2>/dev/null)"
 fi
 
 # Apply cd completions to direnv aliases
